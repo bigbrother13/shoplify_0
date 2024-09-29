@@ -1,11 +1,15 @@
+
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Shoplify 0" %></title>
+    <title>Shoplify</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    
+    <script src="https://js.stripe.com/v3/"></script>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+  </head>
 
   <body>
     <%= link_to "Products", products_path %>
@@ -13,3 +17,4 @@
     <%= yield %>
   </body>
 </html>
+
