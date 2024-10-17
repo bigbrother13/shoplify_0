@@ -1,6 +1,6 @@
 class WebhooksController < ApplicationController
   skip_before_action :verify_authenticity_token
-
+  
   def create
     payload = request.body.read
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
@@ -20,14 +20,28 @@ class WebhooksController < ApplicationController
       return
     end
 
+    # Logging the received event type and session data
+    puts "Received event: #{event.type}"
+    puts "Session data: #{event.data.object.inspect}"
+
     # Handle the event
     case event.type
     when 'checkout.session.completed'
       session = event.data.object
-      @product = Product.find_by(price: session.amount_total)
-      @product.increment!(:sales_count)
-    end
 
+      # Log session data for more clarity
+      puts "Checkout session completed for: #{session.inspect}"
+
+      # Example: Change price to another identifier like `product_id`
+      @product = Product.find_by(price: session.amount_total) # You might need to change this line
+      if @product.present?
+        @product.increment!(:sales_count)
+        puts "Product found and sales count incremented: #{@product.inspect}"
+      else
+        puts "Product not found with price: #{session.amount_total}"
+      end
+    end
+    
     render json: { message: 'success' }
   end
-end
+end 
