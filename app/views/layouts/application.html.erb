@@ -9,6 +9,9 @@
     
     <script src="https://js.stripe.com/v3/"></script>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= csrf_meta_tags %>
+
   </head>
 
   <body>
@@ -17,7 +20,10 @@
     <%= link_to "Products", products_path %>
     <% if current_user %>
       <%= link_to current_user.email, edit_user_registration_path %>
-      <%= link_to "Log out", destroy_user_session_path, method: :delete %>
+      <%= button_to 'Sign Out', destroy_user_session_path, method: :delete %>
+
+
+      <%= current_user.stripe_customer_id %>
     <% else %>
       <%= link_to "Log in", new_user_session_path %>
       <%= link_to "Register", new_user_registration_path %>
