@@ -4,6 +4,7 @@ class CheckoutController < ApplicationController
     product = Product.find(params[:id])
   
     @session = Stripe::Checkout::Session.create({
+      customer: current_user.stripe_customer_id,
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
