@@ -7,14 +7,8 @@ class CheckoutController < ApplicationController
       customer: current_user.stripe_customer_id,
       payment_method_types: ['card'],
       line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: product.name,
-          },
-          unit_amount: product.price, # Цена уже в центах
-        },
-        quantity: 1,
+          price: product.stripe_price_id,
+            quantity: 1,
       }],
       mode: 'payment',
       success_url: root_url,
