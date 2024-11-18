@@ -1,0 +1,35 @@
+
+.listings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.listing-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.listing-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  object-fit: cover; /* Если хотите сохранить пропорции */
+  background-color: #f0f0f0; /* Цвет фона заглушки */
+}
+
+
+.listing-info {
+  margin-top: 8px;
+}
+
+.actions {
+  margin-top: 12px;
+}
+
+.actions a, .actions button {
+  margin-right: 8px;
+}

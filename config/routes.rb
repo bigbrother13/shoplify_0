@@ -8,5 +8,5 @@ Rails.application.routes.draw do
   post '/webhooks', to: 'webhooks#create'
   get "seccess", to: "checkout#seccess"
   get "cancel", to: "checkout#cancel"
-
+  
 end

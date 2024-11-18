@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+
     <title>Shoplify</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
@@ -20,9 +22,7 @@
     <%= link_to "Products", products_path %>
     <% if current_user %>
       <%= link_to current_user.email, edit_user_registration_path %>
-      <%= button_to 'Sign Out', destroy_user_session_path, method: :delete %>
-
-
+      <%= button_to 'Sign Out', destroy_user_session_path, method: :delete %>  
       <%= current_user.stripe_customer_id %>
     <% else %>
       <%= link_to "Log in", new_user_session_path %>

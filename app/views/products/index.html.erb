@@ -38,3 +38,23 @@
 
 <%= link_to 'New Product', new_product_path %>
 <hr>
+
+<div class="listings">
+  <% @products.each do |product| %>
+    <div class="listing-card">
+      <img src="https://via.placeholder.com/150" alt="Listing Image">
+      <div class="listing-info">
+        <h3><%= product.name %></h3>
+        <p><%= number_to_currency(product.price / 100.0) %></p>
+        <p>Stripe ID: <%= product.stripe_product_id %></p>
+        <p>Sales count: <%= product.sales_count %></p>
+        <div class="actions">
+          <%= button_to 'Buy now', checkout_create_path(id: product.id), remote: true %>
+          <%= link_to 'Show', product %>
+          <%= link_to 'Edit', edit_product_path(product) %>
+          <%= link_to 'Destroy', product, method: :delete, data: { confirm: 'Are you sure?' } %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
