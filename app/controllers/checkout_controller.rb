@@ -21,7 +21,12 @@ class CheckoutController < ApplicationController
     end
   end
 
-  def seccess
+  def success
+    session_with_expand = Stripe::Checkout::Session.retrieve({ id: params[:session_id], expand: ["line_items"]})
+    session_with_expand.line_items.data.each do |line_item|
+      product = Product.find_by(stripe_product_id: line_item.price.product)
+      product.increment!(:sales_count)
+    end
   end
 
   def cancel
