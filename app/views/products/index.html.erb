@@ -1,3 +1,4 @@
+
 <p style="color: green"><%= notice %></p>
 
 
@@ -38,6 +39,82 @@
 
 <%= link_to 'New Product', new_product_path %>
 <hr>
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дарoo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">daroo</div>
+            <nav class="menu">
+                <a href="#">Каталог</a>
+                <a href="#">Идеи подарков</a>
+                <a href="#">Место</a>
+                <a href="#">Наборы</a>
+            </nav>
+            <div class="user-actions">
+                <button>Войти</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero">
+            <div class="search-bar">
+                <select>
+                    <option>Минск</option>
+                    <option>Гомель</option>
+                </select>
+                <select>
+                    <option>Категория</option>
+                </select>
+                <input type="text" placeholder="Количество человек">
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <img src="gift-box.jpg" alt="Подарочные наборы">
+                    <p>Подарочные наборы</p>
+                </div>
+                <div class="card">
+                    <img src="beauty.jpg" alt="Услуги салонов красоты">
+                    <p>Услуги салонов красоты</p>
+                </div>
+                <div class="card">
+                    <img src="climbing.jpg" alt="Активный отдых">
+                    <p>Активный отдых</p>
+                </div>
+                <div class="card">
+                    <img src="romance.jpg" alt="Романтика">
+                    <p>Романтика</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="categories">
+            <h2>Подарки в Минске</h2>
+            <div class="category-buttons">
+                <button>Все развлечения</button>
+                <button>Еда и напитки</button>
+                <button>Активный отдых</button>
+                <button>Обучение и мастер-классы</button>
+                <button>Услуги салонов красоты</button>
+                <button>Романтика</button>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+
+
+<br>
+<hr>
+<br>
 
 <div class="listings">
   <% @products.each do |product| %>
@@ -58,3 +135,7 @@
     </div>
   <% end %>
 </div>
+
+
+
+

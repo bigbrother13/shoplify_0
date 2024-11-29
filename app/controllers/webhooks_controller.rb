@@ -23,25 +23,31 @@ class WebhooksController < ApplicationController
       return
     end
 
-    # Logging the received event type and session data
-    puts "Received event: #{event.type}"
-    puts "Session data: #{event.data.object.inspect}"
+    # # Logging the received event type and session data
+    # puts "Received event: #{event.type}"
+    # puts "Session data: #{event.data.object.inspect}"
 
     # Handle the event
+    # case event.type
+    # when 'checkout.session.completed'
+    #   session = event.data.object
+    #   puts "Checkout session completed for: #{session.inspect}"
+      
+    #   @product = Product.find_by(price: session.amount_total) # You might need to change this line
+    #   if @product.present?
+    #     @product.increment!(:sales_count)
+    #     puts "Product found and sales count incremented: #{@product.inspect}"
+    #   else
+    #     puts "Product not found with price: #{session.amount_total}"
+    #   end
+
     case event.type
     when 'checkout.session.completed'
       session = event.data.object
-
-      # Log session data for more clarity
-      puts "Checkout session completed for: #{session.inspect}"
-
-      # Example: Change price to another identifier like `product_id`
-      @product = Product.find_by(price: session.amount_total) # You might need to change this line
-      if @product.present?
-        @product.increment!(:sales_count)
-        puts "Product found and sales count incremented: #{@product.inspect}"
-      else
-        puts "Product not found with price: #{session.amount_total}"
+      session_with_expand = Stripe::Checkout::Session.retrieve({ id: session.id, expand: ["line_items"]})
+      session_with_expand.line_items.data.each do |line_item|
+        product = Product.find_by(stripe_product_id: line_item.price.product)
+        product.increment!(:sales_count)
       end
     end
     
