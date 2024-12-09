@@ -41,16 +41,39 @@ class WebhooksController < ApplicationController
     #     puts "Product not found with price: #{session.amount_total}"
     #   end
 
-    case event.type
-    when 'checkout.session.completed'
-      session = event.data.object
-      session_with_expand = Stripe::Checkout::Session.retrieve({ id: session.id, expand: ["line_items"]})
-      session_with_expand.line_items.data.each do |line_item|
-        product = Product.find_by(stripe_product_id: line_item.price.product)
+  #   case event.type
+  #   when 'checkout.session.completed'
+  #     session = event.data.object
+  #     session_with_expand = Stripe::Checkout::Session.retrieve({ id: session.id, expand: ["line_items"]})
+  #     session_with_expand.line_items.data.each do |line_item|
+  #       product = Product.find_by(stripe_product_id: line_item.price.product)
+  #       product.increment!(:sales_count)
+  #     end
+  #   end
+    
+  #   render json: { message: 'success' }
+  # end
+
+  case event.type
+  when 'checkout.session.completed'
+    Rails.logger.info("Получено событие: #{event.type}")
+    session = event.data.object
+    Rails.logger.info("Сессия: #{session.inspect}")
+  
+    session_with_expand = Stripe::Checkout::Session.retrieve(
+      id: session.id,
+      expand: ["line_items"]
+    )
+  
+    session_with_expand.line_items.data.each do |line_item|
+      Rails.logger.info("Обрабатываем line_item: #{line_item.inspect}")
+      product = Product.find_by(stripe_product_id: line_item.price.product)
+      if product.present?
         product.increment!(:sales_count)
+        Rails.logger.info("Обновлён продукт: #{product.inspect}")
+      else
+        Rails.logger.error("Продукт не найден с stripe_product_id: #{line_item.price.product}")
       end
     end
-    
-    render json: { message: 'success' }
   end
 end 
