@@ -1,93 +1,60 @@
 class WebhooksController < ApplicationController
-  before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token, only: [:create]
 
-  skip_before_action :authenticate_user!, only: [:create]
-  # skip_before_action :verify_authenticity_token
-  
   def create
+    # Чтение данных Webhook-а
     payload = request.body.read
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
-    event = nil
 
     begin
       event = Stripe::Webhook.construct_event(
         payload, sig_header, Rails.application.credentials[:stripe][:webhook]
       )
     rescue JSON::ParserError => e
-      status 400
+      render json: { error: 'Invalid payload' }, status: 400
       return
     rescue Stripe::SignatureVerificationError => e
-      # Invalid signature
-      puts "Signature error"
-      p e
+      render json: { error: 'Invalid signature' }, status: 400
       return
     end
 
-    # # Logging the received event type and session data
-    # puts "Received event: #{event.type}"
-    # puts "Session data: #{event.data.object.inspect}"
-
-    # Handle the event
-    # case event.type
-    # when 'checkout.session.completed'
-    #   session = event.data.object
-    #   puts "Checkout session completed for: #{session.inspect}"
-      
-    #   @product = Product.find_by(price: session.amount_total) # You might need to change this line
-    #   if @product.present?
-    #     @product.increment!(:sales_count)
-    #     puts "Product found and sales count incremented: #{@product.inspect}"
-    #   else
-    #     puts "Product not found with price: #{session.amount_total}"
-    #   end
-
-
-
-
-
-
-
-    # case event.type
-    # when 'checkout.session.completed'
-    #   session = event.data.object
-    #   session_with_expand = Stripe::Checkout::Session.retrieve({ id: session.id, expand: ["line_items"]})
-    #   session_with_expand.line_items.data.each do |line_item|
-    #     product = Product.find_by(stripe_product_id: line_item.price.product)
-    #     product.increment!(:sales_count)
-    #   end
-    # end
-    
-
-
-
+    # Логируем тип события
+    Rails.logger.info("Stripe Webhook получено: #{event.type}")
 
     case event.type
     when 'checkout.session.completed'
-      Rails.logger.info("Получено событие: #{event.type}")
-      session = event.data.object
-      Rails.logger.info("Сессия: #{session.inspect}")
-    
-      session_with_expand = Stripe::Checkout::Session.retrieve(
-        id: session.id,
-        expand: ["line_items"]
-      )
-    
-      session_with_expand.line_items.data.each do |line_item|
-        Rails.logger.info("Обрабатываем line_item: #{line_item.inspect}")
-        # product = Product.find_by(stripe_product_id: line_item.price.product)
-
-        product = Product.find_or_initialize_by(stripe_product_id: line_item.price.product)
-        Rails.logger.info("Найден продукт: #{product.inspect}")
-
-
-        if product.present?
-          product.increment!(:sales_count)
-          Rails.logger.info("Обновлён продукт: #{product.inspect}")
-        else
-          Rails.logger.error("Продукт не найден с stripe_product_id: #{line_item.price.product}")
-        end
-      end
+      process_checkout_session_completed(event.data.object)
+    else
+      Rails.logger.info("Необработанный тип события: #{event.type}")
     end
+
     render json: { message: 'success' }
   end
-end 
+
+  private
+
+  def process_checkout_session_completed(session)
+    Rails.logger.info("Обработка checkout.session.completed: #{session.inspect}")
+
+    # Расширяем сессию, чтобы получить line_items
+    session_with_expand = Stripe::Checkout::Session.retrieve(
+      id: session.id,
+      expand: ["line_items"]
+    )
+
+    # Перебираем товары в заказе
+    session_with_expand.line_items.data.each do |line_item|
+      Rails.logger.info("Обработка line_item: #{line_item.inspect}")
+
+      # Находим продукт по stripe_product_id
+      product = Product.find_by(stripe_product_id: line_item.price.product)
+
+      if product.present?
+        product.increment!(:sales_count)
+        Rails.logger.info("Обновлён продукт: #{product.inspect}")
+      else
+        Rails.logger.error("Продукт не найден для stripe_product_id: #{line_item.price.product}")
+      end
+    end
+  end
+end
